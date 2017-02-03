@@ -163,7 +163,25 @@ public class ledControl extends ActionBarActivity {
         btnGetRes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // do something with data
+                if(PriceElectricity!=-1 && PaymentSum!=-1 && PowerHeating!=-1){
+                    if(PowerHeating/60<PaymentSum/PriceElectricity){
+                        double time=PaymentSum/PriceElectricity*60/PowerHeating;
+                        timer.setProgress((int)(time-1));
+                        start.setEnabled(true);
+                        ttt.setText(String.valueOf(timer.getProgress()+1).concat(":00"));
+                        min=timer.getProgress()+1;
+                        sec=00;
+                        try {
+                            btSocket.getOutputStream().write(toBytes(1024+timer.getProgress()+1));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        msg("Incorect date.");
+                    }
+                } else {
+                    msg("Enter all date.");
+                }
             }
         });
         final TextView powerStr = (TextView)findViewById(R.id.ThirdText);
@@ -302,13 +320,15 @@ public class ledControl extends ActionBarActivity {
         });
         brightness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            public void onProgressChanged(SeekBar seekBar, int progres, boolean fromUser) {
+                double p=progres*70/80;
+                int progress=(int)p;
                 if (fromUser==true)
                 {
-                    lumn.setText("Temperature - "+String.valueOf(progress));
+                    lumn.setText("Temperature - "+String.valueOf(progres));
                     try
                     {
-                        btSocket.getOutputStream().write(toBytes(768+80-brightness.getProgress()));
+                        btSocket.getOutputStream().write(toBytes(768+80-progress));
                     }
                     catch (IOException e)
                     {
@@ -467,7 +487,7 @@ public class ledControl extends ActionBarActivity {
                 lumn.setText("Temperature - " + String.valueOf(20));
                 try
                 {
-                    btSocket.getOutputStream().write(toBytes(768 + 80 - brightness.getProgress()));
+                    btSocket.getOutputStream().write(toBytes(768 + 80 - 17));
                 }
                 catch (IOException e)
                 {
@@ -479,7 +499,7 @@ public class ledControl extends ActionBarActivity {
                 lumn.setText("Temperature - " + String.valueOf(40));
                 try
                 {
-                    btSocket.getOutputStream().write(toBytes(768 + 80 - brightness.getProgress()));
+                    btSocket.getOutputStream().write(toBytes(768 + 80 - 35));
                 }
                 catch (IOException e)
                 {
@@ -491,7 +511,7 @@ public class ledControl extends ActionBarActivity {
                 lumn.setText("Temperature - " + String.valueOf(80));
                 try
                 {
-                    btSocket.getOutputStream().write(toBytes(768 + 80 - brightness.getProgress()));
+                    btSocket.getOutputStream().write(toBytes(768 + 80 - 80));
                 }
                 catch (IOException e) {
                     msg("Error");
